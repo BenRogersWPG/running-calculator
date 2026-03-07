@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Running Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .description {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .highlight {
+            background-color: #ffffcc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Running Calculator</h1>
+    <div class="description">
+        <!-- Add your description here -->
+    </div>
+
+    <div class="input-group">
+        <label for="mph">Miles per hour (mph):</label>
+        <input type="number" id="mph" placeholder="Enter mph">
+    </div>
+
+    <div class="input-group">
+        <label for="mins-per-mile">Minutes per mile (mm:ss):</label>
+        <input type="text" id="mins-per-mile" placeholder="Enter mins per mile (mm:ss)">
+    </div>
+
+    <div class="input-group">
+        <label for="kmph">Kilometers per hour (km/h):</label>
+        <input type="number" id="kmph" placeholder="Enter km/h">
+    </div>
+
+    <div class="input-group">
+        <label for="mins-per-km">Minutes per kilometer (mm:ss):</label>
+        <input type="text" id="mins-per-km" placeholder="Enter mins per km (mm:ss)">
+    </div>
+
+    <div class="input-group">
+        <label for="time-5k">Time to complete 5k (hh:mm):</label>
+        <input type="text" id="time-5k" placeholder="5k (hours:minutes)">
+    </div>
+    <div class="input-group">
+        <label for="time-10k">Time to complete 10k (hh:mm):</label>
+        <input type="text" id="time-10k" placeholder="10k (hours:minutes)">
+    </div>
+    <div class="input-group">
+        <label for="time-half">Time to complete Half Marathon (hh:mm):</label>
+        <input type="text" id="time-half" placeholder="Half Marathon (hours:minutes)">
+    </div>
+    <div class="input-group">
+        <label for="time-full">Time to complete Full Marathon (hh:mm):</label>
+        <input type="text" id="time-full" placeholder="Full Marathon (hours:minutes)">
+    </div>
+
+    <script>
+        const mphInput = document.getElementById('mph');
+        const minsPerMileInput = document.getElementById('mins-per-mile');
+        const kmphInput = document.getElementById('kmph');
+        const minsPerKmInput = document.getElementById('mins-per-km');
+        const timeInputs = {
+            '5k': document.getElementById('time-5k'),
+            '10k': document.getElementById('time-10k'),
+            'half': document.getElementById('time-half'),
+            'full': document.getElementById('time-full')
+        };
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = Math.round(minutes % 60);
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        function formatMinutesToTime(minutes) {
+            const mins = Math.floor(minutes);
+            const secs = Math.round((minutes - mins) * 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function parseTimeToMinutes(time) {
+            const [mins, secs] = time.split(':').map(Number);
+            return mins + secs / 60;
+        }
+
+        function parseHhmmToMinutes(time) {
+            const [hours, mins] = time.split(':').map(Number);
+            return hours * 60 + mins;
+        }
+
+        function updateTimeToComplete(kmph) {
+            const distances = {
+                '5k': 5,
+                '10k': 10,
+                'half': 21.0975,
+                'full': 42.195
+            };
+
+            Object.keys(distances).forEach(distance => {
+                const time = (distances[distance] / kmph) * 60; // Time in minutes
+                timeInputs[distance].value = formatTime(time);
+            });
+        }
+
+        function calculateFromMph(mph) {
+            if (mph > 0) {
+                const minsPerMile = 60 / mph;
+                const kmph = mph * 1.60934;
+                const minsPerKm = 60 / kmph;
+
+                minsPerMileInput.value = formatMinutesToTime(minsPerMile);
+                kmphInput.value = kmph.toFixed(2);
+                minsPerKmInput.value = formatMinutesToTime(minsPerKm);
+
+                updateTimeToComplete(kmph);
+            }
+        }
+
+        function calculateFromKmph(kmph) {
+            if (kmph > 0) {
+                const mph = kmph / 1.60934;
+                const minsPerKm = 60 / kmph;
+                const minsPerMile = 60 / mph;
+
+                mphInput.value = mph.toFixed(2);
+                kmphInput.value = kmph.toFixed(2);
+                minsPerKmInput.value = formatMinutesToTime(minsPerKm);
+                minsPerMileInput.value = formatMinutesToTime(minsPerMile);
+
+                updateTimeToComplete(kmph);
+            }
+        }
+
+        function calculateFromTime(distance, time) {
+            if (time > 0) {
+                const distances = {
+                    '5k': 5,
+                    '10k': 10,
+                    'half': 21.0975,
+                    'full': 42.195
+                };
+
+                const kmph = distances[distance] / (time / 60);
+                calculateFromKmph(kmph);
+
+                Object.keys(timeInputs).forEach(key => {
+                    if (key === distance) {
+                        timeInputs[key].classList.add('highlight');
+                    } else {
+                        timeInputs[key].classList.remove('highlight');
+                    }
+                });
+            }
+        }
+
+        mphInput.addEventListener('input', () => calculateFromMph(parseFloat(mphInput.value)));
+
+        minsPerMileInput.addEventListener('input', () => {
+            const time = minsPerMileInput.value;
+            if (time.includes(':')) {
+                const minutes = parseTimeToMinutes(time);
+                const mph = 60 / minutes;
+                mphInput.value = mph.toFixed(2); // Ensure mph updates
+                calculateFromMph(mph);
+            }
+        });
+
+        kmphInput.addEventListener('input', () => calculateFromKmph(parseFloat(kmphInput.value)));
+
+        minsPerKmInput.addEventListener('input', () => {
+            const time = minsPerKmInput.value;
+            if (time.includes(':')) {
+                const minutes = parseTimeToMinutes(time);
+                const kmph = 60 / minutes;
+                kmphInput.value = kmph.toFixed(2); // Ensure kmph updates
+                calculateFromKmph(kmph);
+            }
+        });
+
+        Object.keys(timeInputs).forEach(distance => {
+            timeInputs[distance].addEventListener('blur', () => {
+                const time = timeInputs[distance].value;
+                if (time.includes(':') && time.split(':').length === 2) {
+                    const minutes = parseHhmmToMinutes(time);
+                    calculateFromTime(distance, minutes);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
