@@ -50,6 +50,22 @@
             background-color: #ffffcc;
             font-weight:bold;
         }
+        .button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #F0BF6E;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #e0af5e;
+        }
     </style>
 
     <meta charset='utf-8'>
@@ -216,6 +232,10 @@
             <label for="time-full">Time to complete Full Marathon (hh:mm):</label>
             <input type="text" id="time-full" placeholder="Full Marathon (hours:minutes)">
         </div>
+
+        <div class="button-container">
+            <button onClick="resetAll()">Reset</button>
+        </div>
     </main>
     <script>
         const mphInput = document.getElementById('mph');
@@ -349,6 +369,16 @@
                 }
             });
         });
+
+        function resetAll() {
+            mphInput.value = '';
+            minsPerMileInput.value = '';
+            kmphInput.value = '';
+            minsPerKmInput.value = '';
+            Object.keys(timeInputs).forEach(key => {
+                timeInputs[key].value = '';
+            });
+        }
 
         function lightDark() {
           const body = document.body;
