@@ -8,4 +8,7 @@ updates:
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "weekly"
+      interval: "cron"
+      cronjob: "30 14 */4 * *"
+      timezone: "America/Vancouver"
+    open-pull-requests-limit: 100
